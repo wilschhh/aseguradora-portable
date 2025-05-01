@@ -18,7 +18,7 @@ aseguradoras = {
     "SURA": 0.15,
 }
 
-st.title("📊 Cálculo de Pagos - Aseguradoras")
+st.title("Cálculo de Pagos - Aseguradoras")
 
 # Historial temporal de cálculos
 if "historial" not in st.session_state:
@@ -80,7 +80,7 @@ with st.expander("➕ Ingresar Datos del Paciente", expanded=True):
                 with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
                     df_resultado.to_excel(writer, index=False, sheet_name='Resumen')
                 st.download_button(
-                    label="📥 Descargar Excel",
+                    label="📥",
                     data=output.getvalue(),
                     file_name="resumen_pagos.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -91,6 +91,6 @@ with st.expander("➕ Ingresar Datos del Paciente", expanded=True):
 
 # Mostrar historial temporal
 if st.session_state.historial:
-    st.write("### 🕓 Historial de cálculos en esta sesión")
+    st.write("### Historial de cálculos en esta sesión")
     df_hist = pd.DataFrame(st.session_state.historial)
     st.dataframe(df_hist, use_container_width=True, hide_index=True)
