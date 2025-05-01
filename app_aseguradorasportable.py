@@ -50,4 +50,4 @@ if st.button("Calcular"):
 
     df = pd.DataFrame(data)
     st.subheader("Resumen de Pagos")
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(df, use_container_width=True, hide_index=True)  # 👈 Esto oculta la numeración
