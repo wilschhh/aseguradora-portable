@@ -2,8 +2,13 @@ import streamlit as st
 import pandas as pd
 
 # Inicializamos la sesión para guardar referencias verificadas
-if "verificados" not in st.session_state:
-    st.session_state.verificados = []
+def init_session():
+    if "verificados" not in st.session_state:
+        st.session_state.verificados = []
+    if "resultados" not in st.session_state:
+        st.session_state.resultados = []
+
+init_session()
 
 # Diccionario de aseguradoras y sus fórmulas
 aseguradoras = {
@@ -59,21 +64,24 @@ with col1:
             pago_cliente = total_gastos * (copago / 100)
             pago_aseguradora = (total_gastos * (1 - descuento)) - pago_cliente
 
-        st.subheader("Resultados")
-        resumen = pd.DataFrame({
-            "TOTAL CARGOS": [f"{total_gastos:,.2f}"],
-            "MONTO PAGADO ASEGURADO": [f"{pago_cliente:,.2f}"],
-            "SALDO PAGAR": [f"{pago_aseguradora:,.2f}"],
-            " ": [f"{total_gastos:,.2f}"]  # Repetido como pediste
+        # Guardar el resultado en la sesión
+        st.session_state.resultados.append({
+            "TOTAL CARGOS": f"{total_gastos:,.2f}",
+            "MONTO PAGADO ASEGURADO": f"{pago_cliente:,.2f}",
+            "SALDO PAGAR": f"{pago_aseguradora:,.2f}",
+            " ": f"{total_gastos:,.2f}"  # Repetido como pediste
         })
-
-        st.dataframe(resumen, hide_index=True, use_container_width=True)
 
     if col_b2.button("Verificado"):
         if referencia.strip() != "":
             st.session_state.verificados.append(referencia.strip())
         else:
             st.warning("Por favor, ingresa un número de referencia.")
+
+    if st.session_state.resultados:
+        st.subheader("Resultados")
+        df_resultados = pd.DataFrame(st.session_state.resultados)
+        st.dataframe(df_resultados, hide_index=True, use_container_width=True)
 
 with col2:
     st.subheader("Checklist de Referencias Verificadas ✅")
@@ -85,3 +93,4 @@ with col2:
         st.dataframe(df_verificados, hide_index=True, use_container_width=True)
     else:
         st.info("Aún no hay referencias verificadas.")
+
