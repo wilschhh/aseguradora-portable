@@ -1,10 +1,10 @@
 import streamlit as st
 
-# Inicializamos la sesión para guardar los cálculos
+# Inicializar la sesión
 if "resultados" not in st.session_state:
     st.session_state.resultados = []
 
-# Diccionario de aseguradoras y sus fórmulas
+# Aseguradoras y fórmulas
 aseguradoras = {
     "MAPFRE": "descuento",
     "BLUE CROSS": "descuento",
@@ -29,12 +29,11 @@ descuentos = {
 
 st.title("Cálculo de Pagos - Aseguradoras")
 
-# Entrada de datos
+# Entradas
 aseguradora = st.selectbox("Selecciona una Aseguradora", list(aseguradoras.keys()))
 total_gastos = st.number_input("Total de Gastos ($)", min_value=0.0, step=100.0)
 copago = st.number_input("Copago del Cliente (%)", min_value=0.0, max_value=100.0, step=1.0)
 
-# Botón para agregar la línea de cálculo
 if st.button("Agregar al Formulario"):
     formula = aseguradoras[aseguradora]
     descuento = descuentos[aseguradora]
@@ -58,29 +57,33 @@ if st.button("Agregar al Formulario"):
         "aseguradora": pago_aseguradora
     })
 
-# Mostrar tabla tipo formulario
+# Mostrar estilo de formulario impreso
 if st.session_state.resultados:
     st.markdown("---")
     st.subheader("Formulario de Cálculo")
 
-    st.markdown(f"""
+    st.markdown("""
     <style>
-    .formulario {{
+    .registro {
         font-family: monospace;
-        font-size: 20px;
+        font-size: 22px;
         border-collapse: collapse;
         width: 100%;
-    }}
-    .formulario td {{
-        padding: 10px 15px;
-        border-bottom: 1px dashed #aaa;
+        margin-bottom: 10px;
+    }
+    .registro td {
+        padding: 12px 10px;
+        border-bottom: 1px dashed #888;
         text-align: center;
-    }}
-    .espaciado td {{
-        padding-top: 25px;
-    }}
+    }
+    .registro th {
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+        color: #222;
+    }
     </style>
-    <table class="formulario">
+    <table class="registro">
         <tr>
             <th>TOTAL<br>CARGOS</th>
             <th>MONTO PAGADO<br>ASEGURADO</th>
