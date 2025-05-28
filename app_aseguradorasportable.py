@@ -1,5 +1,9 @@
 import streamlit as st
 
+# Inicializamos la sesión para guardar los cálculos
+if "resultados" not in st.session_state:
+    st.session_state.resultados = []
+
 # Diccionario de aseguradoras y sus fórmulas
 aseguradoras = {
     "MAPFRE": "descuento",
@@ -25,11 +29,13 @@ descuentos = {
 
 st.title("Cálculo de Pagos - Aseguradoras")
 
+# Entrada de datos
 aseguradora = st.selectbox("Selecciona una Aseguradora", list(aseguradoras.keys()))
 total_gastos = st.number_input("Total de Gastos ($)", min_value=0.0, step=100.0)
 copago = st.number_input("Copago del Cliente (%)", min_value=0.0, max_value=100.0, step=1.0)
 
-if st.button("Calcular"):
+# Botón para agregar la línea de cálculo
+if st.button("Agregar al Formulario"):
     formula = aseguradoras[aseguradora]
     descuento = descuentos[aseguradora]
 
@@ -46,39 +52,49 @@ if st.button("Calcular"):
         pago_cliente = total_gastos * (copago / 100)
         pago_aseguradora = (total_gastos * (1 - descuento)) - pago_cliente
 
-    # Mostrar resultados en tabla horizontal
+    st.session_state.resultados.append({
+        "total": total_gastos,
+        "cliente": pago_cliente,
+        "aseguradora": pago_aseguradora
+    })
+
+# Mostrar tabla tipo formulario
+if st.session_state.resultados:
     st.markdown("---")
-    st.subheader("Resultado del Cálculo")
+    st.subheader("Formulario de Cálculo")
+
     st.markdown(f"""
     <style>
-    .result-table {{
+    .formulario {{
         font-family: monospace;
         font-size: 20px;
         border-collapse: collapse;
         width: 100%;
-        margin-top: 10px;
     }}
-    .result-table td {{
-        padding: 8px 12px;
-        border-bottom: 1px solid #ddd;
+    .formulario td {{
+        padding: 10px 15px;
+        border-bottom: 1px dashed #aaa;
+        text-align: center;
     }}
-    .result-table th {{
-        text-align: left;
-        padding: 8px 12px;
-        border-bottom: 2px solid #333;
+    .espaciado td {{
+        padding-top: 25px;
     }}
     </style>
-
-    <table class="result-table">
+    <table class="formulario">
         <tr>
-            <th>TOTAL CARGOS</th>
-            <th>MONTO PAGADO ASEGURADO</th>
-            <th>SALDO PAGAR</th>
+            <th>TOTAL<br>CARGOS</th>
+            <th>MONTO PAGADO<br>ASEGURADO</th>
+            <th>SALDO<br>PAGAR</th>
         </tr>
-        <tr>
-            <td>${total_gastos:,.2f}</td>
-            <td>${pago_cliente:,.2f}</td>
-            <td>${pago_aseguradora:,.2f}</td>
-        </tr>
-    </table>
     """, unsafe_allow_html=True)
+
+    for fila in st.session_state.resultados:
+        st.markdown(f"""
+        <tr>
+            <td>${fila['total']:,.2f}</td>
+            <td>${fila['cliente']:,.2f}</td>
+            <td>${fila['aseguradora']:,.2f}</td>
+        </tr>
+        """, unsafe_allow_html=True)
+
+    st.markdown("</table>", unsafe_allow_html=True)
