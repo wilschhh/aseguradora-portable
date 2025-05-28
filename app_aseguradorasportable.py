@@ -23,7 +23,6 @@ descuentos = {
     "SURA": 0.15,
 }
 
-# Interfaz principal
 st.title("Cálculo de Pagos - Aseguradoras")
 
 aseguradora = st.selectbox("Selecciona una Aseguradora", list(aseguradoras.keys()))
@@ -47,7 +46,39 @@ if st.button("Calcular"):
         pago_cliente = total_gastos * (copago / 100)
         pago_aseguradora = (total_gastos * (1 - descuento)) - pago_cliente
 
-    st.success("Resultado del Cálculo:")
-    st.write(f"**Total de Gastos:** ${total_gastos:,.2f}")
-    st.write(f"**Cliente Paga:** ${pago_cliente:,.2f}")
-    st.write(f"**Aseguradora Paga:** ${pago_aseguradora:,.2f}")
+    # Mostrar resultados en tabla horizontal
+    st.markdown("---")
+    st.subheader("Resultado del Cálculo")
+    st.markdown(f"""
+    <style>
+    .result-table {{
+        font-family: monospace;
+        font-size: 20px;
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 10px;
+    }}
+    .result-table td {{
+        padding: 8px 12px;
+        border-bottom: 1px solid #ddd;
+    }}
+    .result-table th {{
+        text-align: left;
+        padding: 8px 12px;
+        border-bottom: 2px solid #333;
+    }}
+    </style>
+
+    <table class="result-table">
+        <tr>
+            <th>TOTAL CARGOS</th>
+            <th>MONTO PAGADO ASEGURADO</th>
+            <th>SALDO PAGAR</th>
+        </tr>
+        <tr>
+            <td>${total_gastos:,.2f}</td>
+            <td>${pago_cliente:,.2f}</td>
+            <td>${pago_aseguradora:,.2f}</td>
+        </tr>
+    </table>
+    """, unsafe_allow_html=True)
