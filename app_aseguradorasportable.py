@@ -1,84 +1,53 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+import streamlit as st
 
-# Ventana principal
-ventana = tk.Tk()
-ventana.title("Cálculo de Pagos - Aseguradoras")
-ventana.geometry("420x300")
+# Diccionario de aseguradoras y sus fórmulas
+aseguradoras = {
+    "MAPFRE": "descuento",
+    "BLUE CROSS": "descuento",
+    "ASSA": "descuento",
+    "PALIG": "copago_directo",
+    "VIVIR": "vivir_formula",
+    "SAGICOR": "vivir_formula",
+    "SURA": "vivir_formula",
+    "ANCON": "descuento",
+}
 
-# Aseguradoras disponibles
-aseguradoras = [
-    "ASSA",
-    "MAPFRE",
-    "PALIG",
-    "BLUE CROSS",
-    "VIVIR"
-]
+descuentos = {
+    "MAPFRE": 0.20,
+    "BLUE CROSS": 0.25,
+    "ASSA": 0.25,
+    "ANCON": 0.20,
+    "PALIG": 0.30,
+    "VIVIR": 0.20,
+    "SAGICOR": 0.20,
+    "SURA": 0.15,
+}
 
-# Función para calcular según aseguradora
-def calcular():
-    try:
-        aseguradora = combo_aseguradora.get()
-        if aseguradora not in aseguradoras:
-            messagebox.showerror("Error", "Selecciona una aseguradora válida.")
-            return
+# Interfaz principal
+st.title("Cálculo de Pagos - Aseguradoras")
 
-        subtotal = float(entry_total.get())
-        copago_porcentaje = float(entry_copago.get()) / 100  # % a decimal
+aseguradora = st.selectbox("Selecciona una Aseguradora", list(aseguradoras.keys()))
+total_gastos = st.number_input("Total de Gastos ($)", min_value=0.0, step=100.0)
+copago = st.number_input("Copago del Cliente (%)", min_value=0.0, max_value=100.0, step=1.0)
 
-        if aseguradora == "ASSA":
-            descuento = 0.25
-            monto_descuento = subtotal * descuento
-            pago_cliente = subtotal - monto_descuento - (subtotal * copago_porcentaje)
-            pago_aseguradora = subtotal - pago_cliente
-        elif aseguradora == "MAPFRE":
-            descuento = 0.20
-            monto_descuento = subtotal * descuento
-            pago_cliente = subtotal - monto_descuento - (subtotal * copago_porcentaje)
-            pago_aseguradora = subtotal - pago_cliente
-        elif aseguradora == "PALIG":
-            descuento = 0.30
-            monto_copago = subtotal * copago_porcentaje
-            pago_cliente = monto_copago - (subtotal * descuento)
-            pago_aseguradora = subtotal - pago_cliente
-        elif aseguradora == "BLUE CROSS":
-            descuento = 0.25
-            monto_copago = subtotal * copago_porcentaje
-            pago_cliente = monto_copago - (subtotal * descuento)
-            pago_aseguradora = subtotal - pago_cliente
-        elif aseguradora == "VIVIR":
-            descuento = 0.20
-            monto_descuento = subtotal * descuento
-            pago_cliente = subtotal - monto_descuento - (subtotal * copago_porcentaje)
-            pago_aseguradora = subtotal - pago_cliente
-        else:
-            messagebox.showerror("Error", "Fórmula no definida para esta aseguradora.")
-            return
+if st.button("Calcular"):
+    formula = aseguradoras[aseguradora]
+    descuento = descuentos[aseguradora]
 
-        resultado.set(
-            f"Total Gastos: ${subtotal:,.2f}\n"
-            f"Cliente Paga: ${pago_cliente:,.2f}\n"
-            f"Aseguradora Paga: ${pago_aseguradora:,.2f}"
-        )
-    except ValueError:
-        messagebox.showerror("Error", "Por favor ingresa valores numéricos válidos.")
+    if formula == "descuento":
+        monto_con_descuento = total_gastos * (1 - descuento)
+        pago_cliente = monto_con_descuento * (copago / 100)
+        pago_aseguradora = monto_con_descuento - pago_cliente
 
-# Interfaz
-tk.Label(ventana, text="Selecciona Aseguradora:").pack()
-combo_aseguradora = ttk.Combobox(ventana, values=aseguradoras)
-combo_aseguradora.pack()
+    elif formula == "copago_directo":
+        pago_cliente = total_gastos * (copago / 100)
+        pago_aseguradora = total_gastos * (1 - copago / 100)
 
-tk.Label(ventana, text="Total de Gastos:").pack()
-entry_total = tk.Entry(ventana)
-entry_total.pack()
+    elif formula == "vivir_formula":
+        pago_cliente = total_gastos * (copago / 100)
+        pago_aseguradora = (total_gastos * (1 - descuento)) - pago_cliente
 
-tk.Label(ventana, text="Copago del Cliente (%):").pack()
-entry_copago = tk.Entry(ventana)
-entry_copago.pack()
-
-tk.Button(ventana, text="Calcular", command=calcular).pack(pady=10)
-
-resultado = tk.StringVar()
-tk.Label(ventana, textvariable=resultado, justify="left").pack()
-
-ventana.mainloop()
+    st.success("Resultado del Cálculo:")
+    st.write(f"**Total de Gastos:** ${total_gastos:,.2f}")
+    st.write(f"**Cliente Paga:** ${pago_cliente:,.2f}")
+    st.write(f"**Aseguradora Paga:** ${pago_aseguradora:,.2f}")
